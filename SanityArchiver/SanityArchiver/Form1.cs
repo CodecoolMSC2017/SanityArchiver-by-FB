@@ -8,17 +8,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Security;
+using System.Security.Cryptography;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.IO.Compression;
 
 namespace SanityArchiver
 {
-    public partial class Form : System.Windows.Forms.Form
+    public partial class Form1 : Form
     {
         private String DirectoryPath1;
         private String DirectoryPath2;
         private FileInfo selectedFile;
-        
 
-        public Form()
+
+        public Form1()
         {
             InitializeComponent();
             CreateListView(Directory1);
@@ -60,7 +65,8 @@ namespace SanityArchiver
         {
             if (e.KeyCode == Keys.Return)
             {
-                if (Directory.Exists(Path1.Text)) {
+                if (Directory.Exists(Path1.Text))
+                {
                     DirectoryPath1 = Path1.Text;
                     PopulateListView(Directory1, DirectoryPath1);
 
@@ -112,7 +118,7 @@ namespace SanityArchiver
         {
             DoubleClickHandler(Directory2, ref DirectoryPath2);
         }
-        
+
 
         private void CreateListView(ListView liv)
         {
@@ -137,7 +143,7 @@ namespace SanityArchiver
             DirectoryInfo[] directories = dinfo.GetDirectories();
 
             //Add parent dict
-            lsv.Items.Add(new ListViewItem(new string[] { "Parent", dinfo.Parent.Name , "..." }));
+            lsv.Items.Add(new ListViewItem(new string[] { "Parent", dinfo.Parent.Name, "..." }));
 
             //Add directories
             foreach (DirectoryInfo dir in directories)
@@ -157,7 +163,7 @@ namespace SanityArchiver
                     continue;
                 }
                 string fileSize = EvaluateSize(file.Length);
-                lsv.Items.Add(new ListViewItem(new string[] { "File", file.Name, fileSize}));
+                lsv.Items.Add(new ListViewItem(new string[] { "File", file.Name, fileSize }));
             }
         }
 
@@ -215,22 +221,16 @@ namespace SanityArchiver
             string type = firstSelectedItem.SubItems[0].Text;
             var fileName = firstSelectedItem.SubItems[1].Text;
             DirectoryInfo dinfo = new DirectoryInfo(path);
-            if (type.Equals("File")){
+            if (type.Equals("File"))
+            {
                 selectedFile = dinfo.GetFiles(fileName)[0];
-                Console.WriteLine(selectedFile.Name);
             }
         }
 
         private void CopyButton_Click(object sender, EventArgs e)
         {
-            if(selectedFile == null)
+            if (!CheckErrors())
             {
-                MessageBox.Show("Please select a file first!", "Error");
-                return;
-            }
-            if(DirectoryPath1 == null || DirectoryPath2 == null)
-            {
-                MessageBox.Show("Please select 2 directories first!", "Error");
                 return;
             }
             if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
@@ -252,14 +252,8 @@ namespace SanityArchiver
 
         private void MoveButton_Click(object sender, EventArgs e)
         {
-            if (selectedFile == null)
+            if (!CheckErrors())
             {
-                MessageBox.Show("Please select a file first!", "Error");
-                return;
-            }
-            if (DirectoryPath1 == null || DirectoryPath2 == null)
-            {
-                MessageBox.Show("Please select 2 directories first!", "Error");
                 return;
             }
             if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
@@ -275,9 +269,323 @@ namespace SanityArchiver
         private void MoveFile(string destinationDirectory)
         {
             string destination = destinationDirectory + @"\" + selectedFile.Name;
+            if (File.Exists(destination))
+            {
+                File.Delete(destination);
+            }
             File.Move(selectedFile.FullName, destination);
             PopulateListView(Directory1, DirectoryPath1);
             PopulateListView(Directory2, DirectoryPath2);
         }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+            if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
+            {
+                DeleteFile(selectedFile.FullName, Directory2);
+            }
+            else if (selectedFile.Directory.FullName.Equals(DirectoryPath2))
+            {
+                DeleteFile(selectedFile.FullName, Directory2);
+            }
+        }
+
+        private void DeleteFile(string path, ListView liv)
+        {
+
+            try
+            {
+                File.SetAttributes(path, FileAttributes.Normal);
+                File.Delete(path);
+            }
+            catch (IOException)
+            {
+
+            }
+            PopulateListView(liv, path);
+        }
+
+        private void RenameButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+
+            if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
+            {
+                RenameFile(Directory1);
+            }
+            else if (selectedFile.Directory.FullName.Equals(DirectoryPath2))
+            {
+                RenameFile(Directory2);
+            }
+        }
+
+        private void EncryptButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+
+            if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
+            {
+                EncrptFile(Directory1);
+            }
+            else if (selectedFile.Directory.FullName.Equals(DirectoryPath2))
+            {
+                EncrptFile(Directory2);
+            }
+        }
+
+        private void DecryptButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+
+            if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
+            {
+                DecryptFile(Directory1);
+            }
+            else if (selectedFile.Directory.FullName.Equals(DirectoryPath2))
+            {
+                DecryptFile(Directory2);
+            }
+        }
+
+        private void DecryptFile(ListView liv)
+        {
+            try
+            {
+                string password = @"myKey123"; // Your Key Here
+
+                UnicodeEncoding UE = new UnicodeEncoding();
+                byte[] key = UE.GetBytes(password);
+
+                string newName = selectedFile.Name;
+
+                int resultIndex = selectedFile.Name.IndexOf("encrypted");
+                if (resultIndex != -1)
+                {
+                    newName = selectedFile.Name.Substring(resultIndex+9);
+                }
+
+                string newFullName = selectedFile.Directory.FullName + @"\" + "decrypted" + newName;
+
+                if (File.Exists(newFullName))
+                {
+                    File.SetAttributes(newFullName, FileAttributes.Normal);
+                    File.Delete(newFullName);
+                }
+
+
+                FileStream fsCrypt = new FileStream(selectedFile.FullName, FileMode.Open);
+
+                RijndaelManaged RMCrypto = new RijndaelManaged();
+
+                CryptoStream cs = new CryptoStream(fsCrypt,
+                    RMCrypto.CreateDecryptor(key, key),
+                    CryptoStreamMode.Read);
+
+                FileStream fsOut = new FileStream(newFullName, FileMode.Create);
+
+                int data;
+                while ((data = cs.ReadByte()) != -1)
+                    fsOut.WriteByte((byte)data);
+
+                fsOut.Close();
+                cs.Close();
+                fsCrypt.Close();
+                PopulateListView(liv, selectedFile.Directory.FullName);
+            }
+            catch
+            {
+                MessageBox.Show("Decryption failed!", "Error");
+            }
+        }
+
+        private void EncrptFile(ListView liv)
+        {
+            try
+            {
+                File.SetAttributes(selectedFile.FullName, FileAttributes.Normal);
+                string password = @"myKey123"; // Your Key Here
+                UnicodeEncoding UE = new UnicodeEncoding();
+                byte[] key = UE.GetBytes(password);
+
+                string newName = selectedFile.Name;
+                int resultIndex = selectedFile.Name.IndexOf("encrypted");
+                if (resultIndex != -1)
+                {
+                    newName = selectedFile.Name.Substring(resultIndex + 9);
+                }
+
+                string newFullName = selectedFile.Directory.FullName + @"\" + "encrypted" + newName;
+
+
+                if (File.Exists(newFullName))
+                {
+                    File.SetAttributes(newFullName, FileAttributes.Normal);
+                    File.Delete(newFullName);
+                }
+
+                string cryptFile = newFullName;
+                FileStream fsCrypt = new FileStream(cryptFile, FileMode.Create);
+
+                RijndaelManaged RMCrypto = new RijndaelManaged();
+
+                CryptoStream cs = new CryptoStream(fsCrypt,
+                    RMCrypto.CreateEncryptor(key, key),
+                    CryptoStreamMode.Write);
+
+                FileStream fsIn = new FileStream(selectedFile.FullName, FileMode.Open);
+
+                int data;
+                while ((data = fsIn.ReadByte()) != -1)
+                    cs.WriteByte((byte)data);
+
+
+                fsIn.Close();
+                cs.Close();
+                fsCrypt.Close();
+
+                PopulateListView(liv, selectedFile.Directory.FullName);
+            }
+            catch
+            {
+                MessageBox.Show("Encryption failed!", "Error");
+            }
+        }
+
+
+        private void RenameFile(ListView liv)
+        {
+
+            string newName = "";
+            RenameForm renameForm = new RenameForm(selectedFile, newName, this,liv);
+            newName = renameForm.newName;
+            renameForm.ShowDialog();
+
+        }
+
+        public void Rename(string newName, ListView liv)
+        {
+            string newFullName = selectedFile.Directory.FullName + @"\" + newName;
+            if (File.Exists(newFullName))
+            {
+                File.SetAttributes(newFullName, FileAttributes.Normal);
+                File.Delete(newFullName);
+            }
+
+            File.Move(selectedFile.FullName, newFullName);
+            PopulateListView(liv, selectedFile.Directory.FullName);
+        }
+
+        private bool CheckErrors()
+        {
+            if (selectedFile == null)
+            {
+                MessageBox.Show("Please select a file first!", "Error");
+                return false;
+            }
+            if (DirectoryPath1 == null || DirectoryPath2 == null)
+            {
+                MessageBox.Show("Please select 2 directories first!", "Error");
+                return false;
+            }
+            return true;
+        }
+
+        private void CompressButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+
+            if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
+            {
+                CompressFile(Directory1);
+            }
+            else if (selectedFile.Directory.FullName.Equals(DirectoryPath2))
+            {
+                CompressFile(Directory2);
+            }
+        }
+
+
+        private void CompressFile(ListView liv)
+        {
+            string fileToBeCompressed = selectedFile.FullName;
+
+            string nameWithoutExtension = selectedFile.Name.Split('.')[0];
+            string newFullName = selectedFile.Directory.FullName + @"\" + nameWithoutExtension + ".zip";
+            string zipFilename = newFullName;
+            
+
+
+            using (ZipArchive archive = ZipFile.Open(newFullName, ZipArchiveMode.Update))
+            {
+                archive.CreateEntryFromFile(selectedFile.FullName,selectedFile.Name);
+            }
+            PopulateListView(liv, selectedFile.Directory.FullName);
+        }
+
+        private void DecompressButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+
+            if (selectedFile.Directory.FullName.Equals(DirectoryPath1))
+            {
+                DecompressFile(Directory1);
+            }
+            else if (selectedFile.Directory.FullName.Equals(DirectoryPath2))
+            {
+                DecompressFile(Directory2);
+            }
+        }
+
+        private void DecompressFile(ListView liv)
+        {
+            string extension = selectedFile.Name.Split('.')[1];
+            if (!extension.Equals("zip"))
+            {
+                MessageBox.Show("Please select a zip file!", "Error");
+                return;
+            }
+            try
+            {
+                ZipFile.ExtractToDirectory(selectedFile.FullName, selectedFile.Directory.FullName);
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("File already exists!", "Cannot unzip");
+            }
+
+        }
+
+        private void AttributesButton_Click(object sender, EventArgs e)
+        {
+            if (!CheckErrors())
+            {
+                return;
+            }
+
+            File.SetAttributes(selectedFile.FullName, FileAttributes.ReadOnly);
+        }
+
+
     }
-    }
+
+
+}

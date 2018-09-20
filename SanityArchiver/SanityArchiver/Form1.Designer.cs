@@ -1,6 +1,6 @@
 ﻿namespace SanityArchiver
 {
-    partial class Form
+    partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.Path1 = new System.Windows.Forms.TextBox();
             this.Path2 = new System.Windows.Forms.TextBox();
             this.PathLabel2 = new System.Windows.Forms.Label();
@@ -51,6 +51,7 @@
             this.PatternLabel2 = new System.Windows.Forms.Label();
             this.PatternSearchButton1 = new System.Windows.Forms.PictureBox();
             this.PatternSearchButton2 = new System.Windows.Forms.PictureBox();
+            this.AttributesButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.PatternSearchButton1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PatternSearchButton2)).BeginInit();
             this.SuspendLayout();
@@ -174,6 +175,7 @@
             this.EncryptButton.TabIndex = 13;
             this.EncryptButton.Text = "Encrypt";
             this.EncryptButton.UseVisualStyleBackColor = false;
+            this.EncryptButton.Click += new System.EventHandler(this.EncryptButton_Click);
             // 
             // CompressButton
             // 
@@ -185,6 +187,7 @@
             this.CompressButton.TabIndex = 14;
             this.CompressButton.Text = "Compress";
             this.CompressButton.UseVisualStyleBackColor = false;
+            this.CompressButton.Click += new System.EventHandler(this.CompressButton_Click);
             // 
             // DeleteButton
             // 
@@ -196,6 +199,7 @@
             this.DeleteButton.TabIndex = 15;
             this.DeleteButton.Text = "Delete";
             this.DeleteButton.UseVisualStyleBackColor = false;
+            this.DeleteButton.Click += new System.EventHandler(this.DeleteButton_Click);
             // 
             // RenameButton
             // 
@@ -207,6 +211,7 @@
             this.RenameButton.TabIndex = 16;
             this.RenameButton.Text = "Rename";
             this.RenameButton.UseVisualStyleBackColor = false;
+            this.RenameButton.Click += new System.EventHandler(this.RenameButton_Click);
             // 
             // DecryptButton
             // 
@@ -218,6 +223,7 @@
             this.DecryptButton.TabIndex = 17;
             this.DecryptButton.Text = "Decrypt";
             this.DecryptButton.UseVisualStyleBackColor = false;
+            this.DecryptButton.Click += new System.EventHandler(this.DecryptButton_Click);
             // 
             // MoveButton
             // 
@@ -242,6 +248,7 @@
             this.DecompressButton.TabIndex = 19;
             this.DecompressButton.Text = "Decompress";
             this.DecompressButton.UseVisualStyleBackColor = false;
+            this.DecompressButton.Click += new System.EventHandler(this.DecompressButton_Click);
             // 
             // Pattern1
             // 
@@ -304,13 +311,26 @@
             this.PatternSearchButton2.TabIndex = 25;
             this.PatternSearchButton2.TabStop = false;
             // 
-            // Form
+            // AttributesButton
+            // 
+            this.AttributesButton.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.AttributesButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.AttributesButton.Location = new System.Drawing.Point(580, 385);
+            this.AttributesButton.Name = "AttributesButton";
+            this.AttributesButton.Size = new System.Drawing.Size(128, 32);
+            this.AttributesButton.TabIndex = 26;
+            this.AttributesButton.Text = "ReadOnly";
+            this.AttributesButton.UseVisualStyleBackColor = false;
+            this.AttributesButton.Click += new System.EventHandler(this.AttributesButton_Click);
+            // 
+            // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1259, 540);
+            this.Controls.Add(this.AttributesButton);
             this.Controls.Add(this.PatternSearchButton2);
             this.Controls.Add(this.PatternSearchButton1);
             this.Controls.Add(this.PatternLabel2);
@@ -334,7 +354,7 @@
             this.Controls.Add(this.Path2);
             this.Controls.Add(this.Path1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "Form";
+            this.Name = "Form1";
             this.Text = "Sanity Archiver";
             ((System.ComponentModel.ISupportInitialize)(this.PatternSearchButton1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PatternSearchButton2)).EndInit();
@@ -366,6 +386,7 @@
         private System.Windows.Forms.Label PatternLabel2;
         private System.Windows.Forms.PictureBox PatternSearchButton1;
         private System.Windows.Forms.PictureBox PatternSearchButton2;
+        private System.Windows.Forms.Button AttributesButton;
     }
 }
 
