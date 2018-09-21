@@ -136,7 +136,7 @@ namespace SanityArchiver
             liv.Columns[2].Width = 80;
         }
 
-        private void PopulateListView(ListView lsv, string Folder)
+        private void PopulateListView(ListView lsv, string Folder, string pattern = "*.*")
         {
             lsv.Items.Clear();
             DirectoryInfo dinfo = new DirectoryInfo(Folder);
@@ -153,7 +153,7 @@ namespace SanityArchiver
                 lsv.Items.Add(new ListViewItem(new string[] { "Directory", dir.Name, dirSize }));
             }
 
-            FileInfo[] Files = dinfo.GetFiles();
+            FileInfo[] Files = dinfo.GetFiles(pattern);
 
             //Add files
             foreach (FileInfo file in Files)
@@ -212,6 +212,17 @@ namespace SanityArchiver
                 path = parent.FullName;
                 Path1.Text = path;
                 PopulateListView(liv, path);
+            }
+            else if (type.Equals("File"))
+            {
+                string extension = selectedFile.Name.Split('.')[1];
+                if (extension.Equals("txt"))
+                {
+                    string allText = File.ReadAllText(selectedFile.FullName, Encoding.UTF8);
+                    TxtContentForm txtForm =  new TxtContentForm(allText);
+                    txtForm.ShowDialog();
+                    
+                }
             }
         }
 
@@ -584,7 +595,40 @@ namespace SanityArchiver
             File.SetAttributes(selectedFile.FullName, FileAttributes.ReadOnly);
         }
 
+        private void PatternSearchButton1_Click(object sender, EventArgs e)
+        {
+            if (DirectoryPath1 == null)
+            {
+                MessageBox.Show("Please select a directory first!", "Error");
+                return;
+            }
+            if (Pattern1.Text != "")
+            {
+                PopulateListView(Directory1, DirectoryPath1, Pattern1.Text);
+            }else
+            {
+                PopulateListView(Directory1, DirectoryPath1);
 
+            }
+
+        }
+
+        private void PatternSearchButton2_Click(object sender, EventArgs e)
+        {
+            if (DirectoryPath2 == null)
+            {
+                MessageBox.Show("Please select a directory first!", "Error");
+                return;
+            }
+            if (Pattern2.Text != "")
+            {
+                PopulateListView(Directory2, DirectoryPath2, Pattern2.Text);
+            }
+            else
+            {
+                PopulateListView(Directory2, DirectoryPath2);
+            }
+        }
     }
 
 

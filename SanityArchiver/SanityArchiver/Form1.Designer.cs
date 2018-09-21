@@ -299,6 +299,7 @@
             this.PatternSearchButton1.Size = new System.Drawing.Size(24, 22);
             this.PatternSearchButton1.TabIndex = 24;
             this.PatternSearchButton1.TabStop = false;
+            this.PatternSearchButton1.Click += new System.EventHandler(this.PatternSearchButton1_Click);
             // 
             // PatternSearchButton2
             // 
@@ -310,6 +311,7 @@
             this.PatternSearchButton2.Size = new System.Drawing.Size(24, 22);
             this.PatternSearchButton2.TabIndex = 25;
             this.PatternSearchButton2.TabStop = false;
+            this.PatternSearchButton2.Click += new System.EventHandler(this.PatternSearchButton2_Click);
             // 
             // AttributesButton
             // 

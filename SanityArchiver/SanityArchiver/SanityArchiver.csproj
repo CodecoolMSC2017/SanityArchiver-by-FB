@@ -62,6 +62,12 @@
     <Compile Include="RenameForm.Designer.cs">
       <DependentUpon>RenameForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TxtContentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TxtContentForm.Designer.cs">
+      <DependentUpon>TxtContentForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -77,6 +83,9 @@
     </Compile>
     <EmbeddedResource Include="RenameForm.resx">
       <DependentUpon>RenameForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TxtContentForm.resx">
+      <DependentUpon>TxtContentForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
